@@ -1,0 +1,33 @@
+.Dd April 19, 2025
+.Dt SAC 7
+.Os
+.
+.Sh NAME
+.Nm sac
+.Nd simple anonymous chat
+.
+.Sh SYNOPSIS
+.Bl -item -compact
+.It
+.Xr sacd 1 \(em
+simple anonymous chat daemon
+.It
+.Xr sacr 1 \(em
+simple anonymous chat reader
+.El
+.
+.Sh DESCRIPTION
+.Nm
+is a simple idea
+that allows you
+to hide the message recipient
+when chatting.
+This is done using broadcasting.
+By design traffic in
+.Nm
+is encrypted using
+.Xr sacr 1 ,
+but any other method
+can be used \(em
+this implementation
+is just a reference.
