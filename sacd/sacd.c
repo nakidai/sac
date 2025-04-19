@@ -15,7 +15,7 @@
 
 #define SOCKETS_MAX 128
 #define POLL_WAITMS 1000
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 256
 
 #define lengthof(X) (sizeof(X) / sizeof(*(X)))
 
@@ -23,9 +23,13 @@ int main(int argc, char **argv)
 {
 	int res;
 
-	int peers[SOCKETS_MAX] = {0};
+	struct Peer
+	{
+		char buffer[BUFFER_SIZE];
+		size_t filled;
+		int fd;
+	} peers[SOCKETS_MAX] = {0};
 	struct pollfd ppeers[SOCKETS_MAX] = {0};
-	char buf[BUFFER_SIZE] = {0};
 
 	int port = 8604;
 	if (argc >= 2)
@@ -61,7 +65,7 @@ int main(int argc, char **argv)
 	res = listen(sock, 16);
 	if (res == -1)
 		err(1, "listen()");
-	
+
 	signal(SIGPIPE, SIG_IGN);
 	for (;;)
 	{
@@ -69,9 +73,14 @@ int main(int argc, char **argv)
 		if (client > 0)
 		{
 			for (size_t i = 0; i < lengthof(peers); ++i)
-				if (!peers[i])
+				if (!peers[i].fd)
 				{
-					peers[i] = client;
+					peers[i] = (struct Peer)
+					{
+						.buffer = {0},
+						.filled = 0,
+						.fd = client,
+					};
 					goto accept_end;
 				}
 			warnx("dropping %d as peer list is full", client);
@@ -80,10 +89,10 @@ int main(int argc, char **argv)
 accept_end:;
 		nfds_t written = 0;
 		for (size_t i = 0; i < lengthof(peers); ++i)
-			if (peers[i])
+			if (peers[i].fd)
 				ppeers[written++] = (struct pollfd)
 				{
-					.fd = peers[i],
+					.fd = peers[i].fd,
 					.events = POLLIN,
 				};
 		res = poll(ppeers, written, POLL_WAITMS);
@@ -97,32 +106,41 @@ accept_end:;
 			if (!(ppeers[i].revents & POLLIN))
 				continue;
 
-			ssize_t reads = read(ppeers[i].fd, buf, sizeof(buf));
+			struct Peer *peer = NULL;
+			for (size_t j = 0; j < lengthof(peers); ++j)
+				if (ppeers[i].fd == peers[j].fd)
+				{
+					peer = &peers[j];
+					break;
+				}
+
+			ssize_t reads = read(peer->fd, peer->buffer + peer->filled, sizeof(peer->buffer) - peer->filled);
 			if (reads == -1 || !reads)
 			{
-				for (size_t j = 0; j < lengthof(peers); ++j)
-					if (ppeers[i].fd == peers[j])
-					{
-						close(peers[j]);
-						peers[j] = 0;
-						break;
-					}
+				close(peer->fd);
+				peer->fd = 0;
 				continue;
 			}
 
+			peer->filled += reads;
+			if (peer->filled < sizeof(peer->buffer))
+				continue;
+			peer->filled = 0;
+
 			for (size_t j = 0; j < lengthof(peers); ++j)
 			{
-				if (!peers[j] || i == j)
+				if (!peers[j].fd || peer->fd == peers[j].fd)
 					continue;
+
 				size_t writtenall = 0;
 				do
 				{
-					ssize_t written = write(peers[j], buf, reads);
+					ssize_t written = write(peers[j].fd, peer->buffer + writtenall, sizeof(peer->buffer) - writtenall);
 					if (written == -1)
 						break;
 					else
 						writtenall += written;
-				} while (writtenall < reads);
+				} while (writtenall < sizeof(peer->buffer));
 			}
 		}
 	}
