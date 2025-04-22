@@ -1,0 +1,19 @@
+SAC(7)		       Miscellaneous Information Manual			SAC(7)
+
+NAME
+     sac - simple anonymous chat
+
+SYNOPSIS
+     sacd(1) -- simple anonymous chat daemon
+     sacr(1) -- simple anonymous chat reader
+
+DESCRIPTION
+     sac is a simple idea that allows you to hide the message recipient when
+     chatting.	This is done using broadcasting.  By design traffic in sac is
+     encrypted using sacr(1) (2048-bit RSA), but any other method can be used
+     -- this implementation is just a reference.
+
+SEE ALSO
+     sacd(1), sacr(1)
+
+ttb				April 19, 2025				   ttb
