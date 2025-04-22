@@ -1,0 +1,60 @@
+.Dd April 19, 2025
+.Dt SACR 1
+.Os
+.
+.Sh NAME
+.Nm sacr
+.Nd simple anonymous chat reader
+.
+.Sh SYNOPSIS
+.Nm
+.Op Fl e
+.Ar file
+.
+.Nm
+.
+.Sh DESCRIPTION
+.Nm
+is a tool that is used
+to communicate in a
+.Xr sac 7
+using RSA encryption.
+When called,
+.Nm
+will break input into 256 byte chunks
+and decrypt them.
+If
+.Fl e
+is passed,
+.Nm
+will break input into 245 byte chunks
+and encrypt them.
+Key is read from
+.Ar file .
+.
+.Pp
+If called with no arguments,
+.Nm
+generates a new key pair
+and prints it.
+Be careful as the format is binary,
+so this can break your terminal.
+Because of this output should be piped
+into some file.
+Also, printed information
+contains both private and public keys.
+.
+.Pp
+The arguments are as follows:
+.Bl -tag -width Ds
+.It Fl e
+Encrypt input
+.Pq default is decrypting .
+.It Ar file
+Path to encryption/decryption key
+.Pq depends on the mode .
+.El
+.
+.Sh SEE ALSO
+.Xr sacd 1 ,
+.Xr sac 7
