@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-void add(Number *a, Number *b, Number *res)
+void add(const Number *a, const Number *b, Number *res)
 {
 	int carry = 0;
 	for (size_t i = 0; i < lengthof(res->buffer); ++i)
@@ -15,7 +15,7 @@ void add(Number *a, Number *b, Number *res)
 	}
 }
 
-void neg(Number *src, Number *res)
+void neg(const Number *src, Number *res)
 {
 	Number tmp, one = {.buffer = {1}};
 	for (size_t i = 0; i < lengthof(tmp.buffer); ++i)
@@ -23,7 +23,7 @@ void neg(Number *src, Number *res)
 	add(&tmp, &one, res);
 }
 
-int cmp(Number *a, Number *b)
+int cmp(const Number *a, const Number *b)
 {
 	for (size_t i = lengthof(a->buffer) - 1;; --i)
 		if (a->buffer[i] != b->buffer[i])
@@ -33,7 +33,7 @@ int cmp(Number *a, Number *b)
 	return 0;
 }
 
-void mod(Number *a, Number *b, Number *res)
+void mod(const Number *a, const Number *b, Number *res)
 {
 	Number minus;
 	neg(b, &minus);
@@ -57,7 +57,7 @@ void mod(Number *a, Number *b, Number *res)
 	}
 }
 
-void mul(Number *a, Number *b, Number *res)
+void mul(const Number *a, const Number *b, Number *res)
 {
 	Number sumnum;
 	memcpy(sumnum.buffer, a->buffer, sizeof(sumnum.buffer));
