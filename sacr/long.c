@@ -1,7 +1,6 @@
 #include "sacr.h"
 
 #include <stdio.h>
-#include <string.h>
 
 
 void add(const Number *a, const Number *b, Number *res)
@@ -17,10 +16,9 @@ void add(const Number *a, const Number *b, Number *res)
 
 void neg(const Number *src, Number *res)
 {
-	Number tmp, one = {.buffer = {1}};
-	for (size_t i = 0; i < lengthof(tmp.buffer); ++i)
-		tmp.buffer[i] = ~src->buffer[i];
-	add(&tmp, &one, res);
+	for (size_t i = 0; i < lengthof(res->buffer); ++i)
+		res->buffer[i] = ~src->buffer[i];
+	add(res, &Number(1), res);
 }
 
 int cmp(const Number *a, const Number *b)
@@ -35,11 +33,10 @@ int cmp(const Number *a, const Number *b)
 
 void mod(const Number *a, const Number *b, Number *res)
 {
-	Number minus, cmpnum;
-	memcpy(cmpnum.buffer, b->buffer, sizeof(cmpnum.buffer));
+	Number minus, cmpnum = *b;
 	neg(b, &minus);
 
-	memset(res->buffer, 0, sizeof(res->buffer));
+	*res = Number(0);
 	for (size_t i = lengthof(a->buffer);; --i)
 	{
 		for (size_t j = 31;; --j)
@@ -60,11 +57,9 @@ void mod(const Number *a, const Number *b, Number *res)
 
 void mul(const Number *a, const Number *b, Number *res)
 {
-	Number sumnum, mulnum;
-	memcpy(sumnum.buffer, a->buffer, sizeof(sumnum.buffer));
-	memcpy(mulnum.buffer, b->buffer, sizeof(mulnum.buffer));
+	Number sumnum = *a, mulnum = *b;
 
-	memset(res->buffer, 0, sizeof(res->buffer));
+	*res = Number(0);
 	for (size_t i = 0; i < lengthof(mulnum.buffer); ++i)
 		for (size_t j = 0; j < 32; ++j)
 		{
