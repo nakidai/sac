@@ -73,3 +73,21 @@ void mul(const Number *a, const Number *b, Number *res)
 			add(&sumnum, &sumnum, &sumnum);
 		}
 }
+
+void expmod(const Number *a, const Number *b, const Number *m, Number *res)
+{
+	Number left = *b, n, sum, tmp;
+	*res = Number(1);
+
+	if (cmp(b, &Number(0)) == 0)
+		return;
+
+	while (cmp(&left, &Number(0)) != 0)
+	{
+		sum = *a;
+		for (n = Number(1); add(&n, &n, &tmp), cmp(&tmp, &left) <= 0; add(&n, &n, &n))
+			mul(&sum, &sum, &sum);
+		mul(res, &sum, res);
+		neg(&n, &n), add(&left, &n, &left);
+	}
+}

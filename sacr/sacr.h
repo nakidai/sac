@@ -18,11 +18,14 @@ struct Key
 
 #define lengthof(x) (sizeof(x) / sizeof(*(x)))
 
+#define Number(...) ((Number){.buffer={__VA_ARGS__}})
+
 void add(const Number *a, const Number *b, Number *res);
 void neg(const Number *src, Number *res);
 int cmp(const Number *a, const Number *b);
 void mod(const Number *a, const Number *b, Number *res);
 void mul(const Number *a, const Number *b, Number *res);
+void expmod(const Number *a, const Number *b, const Number *m, Number *res);
 
 int decrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
 int encrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
