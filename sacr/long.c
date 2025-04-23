@@ -35,7 +35,8 @@ int cmp(const Number *a, const Number *b)
 
 void mod(const Number *a, const Number *b, Number *res)
 {
-	Number minus;
+	Number minus, cmpnum;
+	memcpy(cmpnum.buffer, b->buffer, sizeof(cmpnum.buffer));
 	neg(b, &minus);
 
 	memset(res->buffer, 0, sizeof(res->buffer));
@@ -45,7 +46,7 @@ void mod(const Number *a, const Number *b, Number *res)
 		{
 			add(res, res, res);
 			res->buffer[0] += (a->buffer[i] & (1 << j)) >> j;
-			if (cmp(res, b) >= 0)
+			if (cmp(res, &cmpnum) >= 0)
 				add(res, &minus, res);
 
 			if (j == 0)
@@ -59,14 +60,15 @@ void mod(const Number *a, const Number *b, Number *res)
 
 void mul(const Number *a, const Number *b, Number *res)
 {
-	Number sumnum;
+	Number sumnum, mulnum;
 	memcpy(sumnum.buffer, a->buffer, sizeof(sumnum.buffer));
+	memcpy(mulnum.buffer, b->buffer, sizeof(mulnum.buffer));
 
 	memset(res->buffer, 0, sizeof(res->buffer));
-	for (size_t i = 0; i < lengthof(b->buffer); ++i)
+	for (size_t i = 0; i < lengthof(mulnum.buffer); ++i)
 		for (size_t j = 0; j < 32; ++j)
 		{
-			if (b->buffer[i] & (1 << j))
+			if (mulnum.buffer[i] & (1 << j))
 				add(res, &sumnum, res);
 			add(&sumnum, &sumnum, &sumnum);
 		}
