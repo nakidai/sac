@@ -33,16 +33,16 @@ int cmp(const Number *a, const Number *b)
 
 void mod(const Number *a, const Number *b, Number *res)
 {
-	Number minus, cmpnum = *b;
+	Number minus, divnum = *a, cmpnum = *b;
 	neg(b, &minus);
 
 	*res = Number(0);
-	for (size_t i = lengthof(a->buffer);; --i)
+	for (size_t i = lengthof(divnum.buffer);; --i)
 	{
 		for (size_t j = 31;; --j)
 		{
 			add(res, res, res);
-			res->buffer[0] += (a->buffer[i] & (1 << j)) >> j;
+			res->buffer[0] += (divnum.buffer[i] & (1 << j)) >> j;
 			if (cmp(res, &cmpnum) >= 0)
 				add(res, &minus, res);
 
@@ -81,7 +81,7 @@ void expmod(const Number *a, const Number *b, const Number *m, Number *res)
 	{
 		sum = *a;
 		for (n = Number(1); add(&n, &n, &tmp), cmp(&tmp, &left) <= 0; add(&n, &n, &n))
-			mul(&sum, &sum, &sum);
+			mul(&sum, &sum, &sum), mod(&sum, m, &sum);
 		mul(res, &sum, res);
 		neg(&n, &n), add(&left, &n, &left);
 	}
