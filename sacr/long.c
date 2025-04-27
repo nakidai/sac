@@ -5,12 +5,12 @@
 
 void add(const Number *a, const Number *b, Number *res)
 {
-	int carry = 0;
+	uint64_t x, carry = 0;
 	for (size_t i = 0; i < lengthof(res->buffer); ++i)
 	{
-		uint64_t x = (uint64_t)a->buffer[i] + b->buffer[i] + carry;
-		carry = x > UINT32_MAX;
-		res->buffer[i] = x & UINT32_MAX;
+		x = (uint64_t)a->buffer[i] + b->buffer[i] + carry;
+		carry = x >> 32;
+		res->buffer[i] = x;
 	}
 }
 
@@ -19,6 +19,20 @@ void neg(const Number *src, Number *res)
 	for (size_t i = 0; i < lengthof(res->buffer); ++i)
 		res->buffer[i] = ~src->buffer[i];
 	add(res, &Number(1), res);
+}
+
+void shr(const Number *a, size_t b, Number *res)
+{
+	int64_t x, carry = 0;
+	for (size_t i = lengthof(res->buffer) - 1;; --i)
+	{
+		x = ((uint64_t)a->buffer[i] << (32 - b)) + carry;
+		carry = x << 32;
+		res->buffer[i] = x >> 32;
+
+		if (i == 0)
+			break;
+	}
 }
 
 int cmp(const Number *a, const Number *b)
@@ -31,27 +45,44 @@ int cmp(const Number *a, const Number *b)
 	return 0;
 }
 
+static int isn(const Number *n)
+{
+	for (size_t i = 0; i < lengthof(n->buffer); ++i)
+		if (n->buffer[i])
+			return 1;
+	return 0;
+}
+
+static size_t log2floor(const Number *n)
+{
+	Number test = *n;
+	for (size_t size = lengthof(test.buffer) * 32;; --size)
+	{
+		if (test.buffer[lengthof(test.buffer) - 1] & 0x80000000)
+			return size;
+		else
+			add(&test, &test, &test);
+
+		if (size == 0)
+			return size;
+	}
+}
+
 void mod(const Number *a, const Number *b, Number *res)
 {
-	Number minus, divnum = *a, cmpnum = *b;
-	neg(b, &minus);
+	Number shiftedb;
 
-	*res = Number(0);
-	for (size_t i = lengthof(divnum.buffer);; --i)
+	*res = *a;
+	while (cmp(res, b) >= 0)
 	{
-		for (size_t j = 31;; --j)
-		{
-			add(res, res, res);
-			res->buffer[0] += (divnum.buffer[i] & (1 << j)) >> j;
-			if (cmp(res, &cmpnum) >= 0)
-				add(res, &minus, res);
+		shiftedb = *b;
 
-			if (j == 0)
-				break;
-		}
+		while (cmp(&shiftedb, res) <= 0)
+			add(&shiftedb, &shiftedb, &shiftedb);
+		shr(&shiftedb, 1, &shiftedb);
 
-		if (i == 0)
-			break;
+		neg(&shiftedb, &shiftedb);
+		add(res, &shiftedb, res);
 	}
 }
 
@@ -69,9 +100,9 @@ void mul(const Number *a, const Number *b, Number *res)
 		}
 }
 
-void expmod(const Number *a, const Number *b, const Number *m, Number *res)
+void expmon(const Number *a, const Number *b, const Number *m, Number *res)
 {
-	Number left = *b, n, sum, tmp;
+	Number base = *a, left = *b;
 	*res = Number(1);
 
 	if (cmp(b, &Number(0)) == 0)
@@ -79,10 +110,28 @@ void expmod(const Number *a, const Number *b, const Number *m, Number *res)
 
 	while (cmp(&left, &Number(0)) != 0)
 	{
-		sum = *a;
-		for (n = Number(1); add(&n, &n, &tmp), cmp(&tmp, &left) <= 0; add(&n, &n, &n))
-			mul(&sum, &sum, &sum), mod(&sum, m, &sum);
-		mul(res, &sum, res);
-		neg(&n, &n), add(&left, &n, &left);
+		if (left.buffer[0] & 1)
+		{
+			left.buffer[0] ^= 1;
+			mul(res, &base, res), mod(res, m, res);
+		} else
+		{
+			shr(&left, 1, &left);
+			mul(&base, &base, &base), mod(&base, m, &base);
+		}
+	}
+}
+
+void expmod(const Number *a, const Number *b, const Number *m, Number *res)
+{
+	Number base = *a;
+	*res = Number(1);
+
+	size_t iters = log2floor(b);
+	for (size_t i = 0; i < iters; ++i)
+	{
+		if (b->buffer[i >> 5] & (1 << (i & 31)))
+			mul(res, &base, res), mod(res, m, res);
+		mul(&base, &base, &base), mod(&base, m, &base);
 	}
 }

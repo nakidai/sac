@@ -7,7 +7,7 @@
 
 struct Number
 {
-	uint32_t buffer[128];
+	uint32_t buffer[4];
 };
 typedef struct Number Number;
 
@@ -22,10 +22,12 @@ struct Key
 
 void add(const Number *a, const Number *b, Number *res);
 void neg(const Number *src, Number *res);
+void shr(const Number *a, size_t b, Number *res);
 int cmp(const Number *a, const Number *b);
 void mod(const Number *a, const Number *b, Number *res);
 void mul(const Number *a, const Number *b, Number *res);
 void expmod(const Number *a, const Number *b, const Number *m, Number *res);
+void expmon(const Number *a, const Number *b, const Number *m, Number *res);
 
 int decrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
 int encrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
