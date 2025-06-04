@@ -3,6 +3,8 @@ PREFIX ?= /usr/local/
 BINDIR ?= ${PREFIX}/bin
 MANDIR ?= ${PREFIX}/man
 
+CFLAGS += -O3
+
 OBJS += decrypt.o
 OBJS += encrypt.o
 OBJS += generate.o

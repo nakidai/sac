@@ -39,17 +39,9 @@ int cmp(const Number *a, const Number *b)
 {
 	for (size_t i = lengthof(a->buffer) - 1;; --i)
 		if (a->buffer[i] != b->buffer[i])
-			return a->buffer[i] - b->buffer[i];
+			return a->buffer[i] > b->buffer[i] ? 1 : -1;
 		else if (i == 0)
 			break;
-	return 0;
-}
-
-static int isn(const Number *n)
-{
-	for (size_t i = 0; i < lengthof(n->buffer); ++i)
-		if (n->buffer[i])
-			return 1;
 	return 0;
 }
 
@@ -98,28 +90,6 @@ void mul(const Number *a, const Number *b, Number *res)
 				add(res, &sumnum, res);
 			add(&sumnum, &sumnum, &sumnum);
 		}
-}
-
-void expmon(const Number *a, const Number *b, const Number *m, Number *res)
-{
-	Number base = *a, left = *b;
-	*res = Number(1);
-
-	if (cmp(b, &Number(0)) == 0)
-		return;
-
-	while (cmp(&left, &Number(0)) != 0)
-	{
-		if (left.buffer[0] & 1)
-		{
-			left.buffer[0] ^= 1;
-			mul(res, &base, res), mod(res, m, res);
-		} else
-		{
-			shr(&left, 1, &left);
-			mul(&base, &base, &base), mod(&base, m, &base);
-		}
-	}
 }
 
 void expmod(const Number *a, const Number *b, const Number *m, Number *res)

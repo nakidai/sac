@@ -7,7 +7,7 @@
 
 struct Number
 {
-	uint32_t buffer[4];
+	uint32_t buffer[32];
 };
 typedef struct Number Number;
 
@@ -32,5 +32,8 @@ void expmon(const Number *a, const Number *b, const Number *m, Number *res);
 int decrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
 int encrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
 int generate(void);
+
+
+void print(const Number *n);
 
 #endif /* __SACR_H__ */

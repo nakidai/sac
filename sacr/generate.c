@@ -23,7 +23,7 @@ static void gennum(Number *res)
 	read(fd, res->buffer, sizeof(res->buffer) / 4);
 }
 
-static void print(const Number *x)
+void print(const Number *x)
 {
 	for (size_t i = 0; i < lengthof(x->buffer); ++i)
 		printf("%u ", x->buffer[i]);
@@ -64,7 +64,6 @@ int generate(void)
 {
 	Number res;
 	genprime(&res);
-	//mod(&Number(18), &Number(5), &res);
 	for (size_t i = 0; i < lengthof(res.buffer); ++i)
 		printf("%u ", res.buffer[i]);
 	putchar('\n');
