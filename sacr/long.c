@@ -112,3 +112,13 @@ void print(const Number *x)
 		printf("%u ", x->buffer[i]);
 	putchar('\n');
 }
+
+void store(int fd, const Number *x)
+{
+	/* TODO: storing long numbers */
+}
+
+void load(int fd, Number *res)
+{
+	/* TODO: loading long numbers */
+}

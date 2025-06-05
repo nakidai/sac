@@ -28,6 +28,8 @@ void mod(const Number *a, const Number *b, Number *res);
 void mul(const Number *a, const Number *b, Number *res);
 void expmod(const Number *a, const Number *b, const Number *m, Number *res);
 void print(const Number *n);
+void store(int fd, const Number *x);
+void load(int fd, Number *res);
 
 int decrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
 int encrypt(char *input, char *output, struct Key *key, size_t inputsize, size_t outputsize);
