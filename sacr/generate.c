@@ -10,17 +10,12 @@
 
 #define ISPRIME_TESTCOUNT 1
 
+int randfd;
+
 static void gennum(Number *res)
 {
 	*res = Number(0);
-	static int fd = 0;
-	if (!fd)
-	{
-		fd = open("/dev/random", 0);
-		if (fd == -1)
-			err(1, "open()");
-	}
-	read(fd, res->buffer, sizeof(res->buffer) / 4);
+	read(randfd, res->buffer, sizeof(res->buffer) / 4);
 }
 
 static int isprime(const Number *n)
@@ -53,6 +48,10 @@ static void genprime(Number *res)
 
 int generate(void)
 {
+	randfd = open("/dev/random", 0);
+	if (randfd == -1)
+		err(1, "open()");
+
 	Number res;
 	genprime(&res);
 	print(&res);
