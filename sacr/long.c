@@ -105,3 +105,10 @@ void expmod(const Number *a, const Number *b, const Number *m, Number *res)
 		mul(&base, &base, &base), mod(&base, m, &base);
 	}
 }
+
+void print(const Number *x)
+{
+	for (size_t i = 0; i < lengthof(x->buffer); ++i)
+		printf("%u ", x->buffer[i]);
+	putchar('\n');
+}

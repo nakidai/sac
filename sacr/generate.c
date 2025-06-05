@@ -23,13 +23,6 @@ static void gennum(Number *res)
 	read(fd, res->buffer, sizeof(res->buffer) / 4);
 }
 
-void print(const Number *x)
-{
-	for (size_t i = 0; i < lengthof(x->buffer); ++i)
-		printf("%u ", x->buffer[i]);
-	putchar('\n');
-}
-
 static int isprime(const Number *n)
 {
 	Number a, n1, res;
@@ -52,20 +45,16 @@ static void genprime(Number *res)
 	gennum(res);
 	res->buffer[0] |= 1;
 	for(;;)
-	{
 		if (printf("%u\n", res->buffer[0]), isprime(res))
 			break;
 		else
 			add(res, &Number(2), res);
-	}
 }
 
 int generate(void)
 {
 	Number res;
 	genprime(&res);
-	for (size_t i = 0; i < lengthof(res.buffer); ++i)
-		printf("%u ", res.buffer[i]);
-	putchar('\n');
+	print(&res);
 	return 0;
 }
