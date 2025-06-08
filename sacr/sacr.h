@@ -7,7 +7,7 @@
 
 struct Number
 {
-	uint32_t buffer[16];
+	uint32_t buffer[128];
 };
 typedef struct Number Number;
 
